@@ -30,8 +30,16 @@ import android.database.CursorWrapper;
  */
 public class PositionFilteredCursor extends CursorWrapper
 {
-	private final ArrayList<Integer> _projectionIndex;
-	private int _projectedPosition;
+	/**
+	 * Projections is an Arraylist containing the cursorpositions that are not
+	 * filtered.
+	 */
+	private final ArrayList<Integer> _projections;
+
+	/**
+	 * Index pointing to an element in the _projections.
+	 */
+	private int _projectionIndex;
 
 	/**
 	 * @param cursor
@@ -39,8 +47,8 @@ public class PositionFilteredCursor extends CursorWrapper
 	public PositionFilteredCursor(Cursor cursor)
 	{
 		super(cursor);
-		_projectionIndex = new ArrayList<Integer>();
-		_projectedPosition = cursor.getPosition();
+		_projections = new ArrayList<Integer>();
+		_projectionIndex = cursor.getPosition();
 		createFreshIndex();
 	}
 
@@ -52,7 +60,7 @@ public class PositionFilteredCursor extends CursorWrapper
 	 */
 	public void filter(int position)
 	{
-		_projectionIndex.remove(position);
+		_projections.remove(position);
 	}
 
 	/**
@@ -66,7 +74,7 @@ public class PositionFilteredCursor extends CursorWrapper
 	@Override
 	public int getCount()
 	{
-		return _projectionIndex.size();
+		return _projections.size();
 	}
 
 	@Override
@@ -102,7 +110,7 @@ public class PositionFilteredCursor extends CursorWrapper
 	@Override
 	public int getPosition()
 	{
-		return _projectedPosition;
+		return _projectionIndex;
 	}
 
 	@Override
@@ -126,8 +134,12 @@ public class PositionFilteredCursor extends CursorWrapper
 	@Override
 	public boolean moveToPosition(int position)
 	{
-		_projectedPosition = _projectionIndex.get(position);
-		return super.moveToPosition(_projectedPosition);
+		if ((position > -1) && (position < _projections.size()))
+		{
+			_projectionIndex = position;
+			return super.moveToPosition(_projections.get(_projectionIndex));
+		}
+		return false;
 	}
 
 	@Override
@@ -138,10 +150,10 @@ public class PositionFilteredCursor extends CursorWrapper
 
 	private void createFreshIndex()
 	{
-		_projectionIndex.clear();
+		_projections.clear();
 		for (int i = 0; i < super.getCount(); i++)
 		{
-			_projectionIndex.add(i);
+			_projections.add(i);
 		}
 	}
 }
