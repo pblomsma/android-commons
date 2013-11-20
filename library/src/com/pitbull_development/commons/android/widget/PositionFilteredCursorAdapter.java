@@ -63,6 +63,6 @@ public abstract class PositionFilteredCursorAdapter extends CursorAdapter
 
 	public PositionFilteredCursor getCursor()
 	{
-		return (PositionFilteredCursor)getCursor();
+		return (PositionFilteredCursor)super.getCursor();
 	}
 }
